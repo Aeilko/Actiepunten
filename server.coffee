@@ -10,3 +10,6 @@ exports.client_newVergadering = (naam, cb) !->
 	
 	log 'user ', Plugin.userName(), '(', Plugin.userId(), ') added meeting "', naam, '" (', id, ')'
 	cb.reply id
+exports.client_newActiepunt = (naam, persoon, cb) !->
+	date = new Date()
+	status = 0;
