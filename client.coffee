@@ -64,7 +64,7 @@ exports.render = ->
 							Modal.show "U heeft geen persoon geselecteerd"
 						else
 							# Save new actiepunt
-							Server.call 'newActiepunt', naam, persoon, (res)->
+							Server.call 'newActiepunt', vID, naam, persoon, (res)->
 								if res == "false"
 									Modal.show 'Er iets mis gegaan, probeer het later nog eens'
 								else
@@ -97,7 +97,7 @@ exports.render = ->
 					Ui.list !->
 						Dom.h2 "Actiepunten voor " + vergadering.naam
 							
-						actiepunten = Db.shared.ref("vergaderingen", p, "actiepunten")
+						actiepunten = Db.shared.ref("vergaderingen", vID, "actiepunten")
 						if !actiepunten
 							Ui.item !->
 								Dom.div !->
@@ -105,8 +105,31 @@ exports.render = ->
 										fontStyle: 'italic'
 									Dom.text 'Er zijn nog geen actiepunten voor deze vergadering'
 						else
-							Ui.item !->
-								Dom.h2 "Test"
+							actiepunten.iterate (actiepunt) !->
+								Ui.item !->
+									if (0|actiepunt.get('persoon')) == Plugin.userId()
+										Dom.style fontWeight: 'bold'
+									
+									Ui.avatar Plugin.userAvatar(actiepunt.get('persoon'))
+									
+									Dom.div !->
+										Dom.style
+											marginLeft: '10px'
+											Flex: true
+										Dom.text actiepunt.get('naam')
+									
+									Dom.div !->
+										Dom.img !->
+											Dom.prop src: Plugin.resourceUri('status_' + actiepunt.get('status') + '.jpg')
+											Dom.style
+												height: '25px'
+									
+									if (0|actiepunt.get('persoon')) == Plugin.userId()
+										Dom.onTap !->
+											Server.call 'updateActiepunt', vID, actiepunt.key(), (res)->
+												if res == "false"
+													Modal.show 'Er iets mis gegaan, probeer het later nog eens'
+													
 						
 					Page.setFooter
 						label: tr('Actiepunt Toevoegen')
